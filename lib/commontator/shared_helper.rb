@@ -39,10 +39,18 @@ module Commontator::SharedHelper
 
     text.to_str.gsub(/\r\n?/, "\n").gsub(/>\s*</, ">\n<").split(/\s*\n\s*/).reject(&:blank?)
   end
-
+  def commontator_protect_katex(text)
+    return text if text.nil?
+    inside = true
+    text.split("$$",-1).map do |t|
+      inside = !inside
+      t.gsub!("\n","") if inside
+      t
+    end.join("$$")
+  end
   def commontator_simple_format(text, html_options = {}, options = {})
     wrapper_tag = options.fetch(:wrapper_tag, :p)
-
+    text = commontator_protect_katex(text) if options.fetch(:protect_katex,true)
     text = sanitize(text) if options.fetch(:sanitize, true)
     paragraphs = commontator_split_paragraphs(text)
 
